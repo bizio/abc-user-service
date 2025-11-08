@@ -1,0 +1,336 @@
+basePath: /v1
+definitions:
+  http.HttpError:
+    properties:
+      error:
+        type: string
+    type: object
+  v1.CreateUserRequest:
+    properties:
+      dob:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+    required:
+    - dob
+    - email
+    - name
+    type: object
+  v1.CreateUserResponse:
+    properties:
+      id:
+        type: string
+    type: object
+  v1.File:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      path:
+        type: string
+      size:
+        type: integer
+      userID:
+        type: string
+    type: object
+  v1.GetFilesResponse:
+    properties:
+      files:
+        items:
+          $ref: '#/definitions/v1.File'
+        type: array
+    type: object
+  v1.ListUsersResponse:
+    properties:
+      count:
+        type: integer
+      users:
+        items:
+          $ref: '#/definitions/v1.User'
+        type: array
+    type: object
+  v1.UpdateUserRequest:
+    properties:
+      dob:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    required:
+    - id
+    type: object
+  v1.UpdateUserResponse:
+    properties:
+      user:
+        $ref: '#/definitions/v1.User'
+    type: object
+  v1.UploadFileResponse:
+    properties:
+      file:
+        $ref: '#/definitions/v1.File'
+    type: object
+  v1.User:
+    properties:
+      dob:
+        type: string
+      email:
+        type: string
+      files:
+        items:
+          $ref: '#/definitions/v1.File'
+        type: array
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample user service for ABC.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: ABC User Service API
+  version: "1.0"
+paths:
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: List all users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.ListUsersResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.HttpError'
+      summary: List all users
+      tags:
+      - users
+    post:
+      consumes:
+      - application/json
+      description: Create a new user with the provided information
+      parameters:
+      - description: User to create
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/v1.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/v1.CreateUserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http.HttpError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.HttpError'
+      summary: Create a new user
+      tags:
+      - users
+  /users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a user by its ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http.HttpError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.HttpError'
+      summary: Delete a user
+      tags:
+      - users
+    get:
+      consumes:
+      - application/json
+      description: Get a single user by its ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.User'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http.HttpError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.HttpError'
+      summary: Get a user by ID
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Update an existing user's information
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User data to update
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/v1.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/v1.UpdateUserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http.HttpError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http.HttpError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.HttpError'
+      summary: Update a user
+      tags:
+      - users
+  /users/{id}/files:
+    delete:
+      consumes:
+      - application/json
+      description: Delete all files associated with a specific user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http.HttpError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.HttpError'
+      summary: Delete all files for a user
+      tags:
+      - files
+    get:
+      consumes:
+      - application/json
+      description: Get a list of files for a specific user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.GetFilesResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/http.HttpError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.HttpError'
+      summary: Get user's files
+      tags:
+      - files
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload a file for a specific user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: File to upload
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/v1.UploadFileResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/http.HttpError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/http.HttpError'
+      summary: Upload a file
+      tags:
+      - files
+swagger: "2.0"

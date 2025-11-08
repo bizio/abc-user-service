@@ -1,0 +1,622 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>service: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/bizio/abc-user-service/internal/application/service/add-file.go (100.0%)</option>
+				
+				<option value="file1">github.com/bizio/abc-user-service/internal/application/service/create.go (93.3%)</option>
+				
+				<option value="file2">github.com/bizio/abc-user-service/internal/application/service/delete-files.go (100.0%)</option>
+				
+				<option value="file3">github.com/bizio/abc-user-service/internal/application/service/delete.go (100.0%)</option>
+				
+				<option value="file4">github.com/bizio/abc-user-service/internal/application/service/get-files.go (100.0%)</option>
+				
+				<option value="file5">github.com/bizio/abc-user-service/internal/application/service/get.go (100.0%)</option>
+				
+				<option value="file6">github.com/bizio/abc-user-service/internal/application/service/list.go (100.0%)</option>
+				
+				<option value="file7">github.com/bizio/abc-user-service/internal/application/service/update.go (100.0%)</option>
+				
+				<option value="file8">github.com/bizio/abc-user-service/internal/domain/event/user-created.go (0.0%)</option>
+				
+				<option value="file9">github.com/bizio/abc-user-service/internal/domain/event/user-deleted.go (0.0%)</option>
+				
+				<option value="file10">github.com/bizio/abc-user-service/internal/domain/event/user-updated.go (0.0%)</option>
+				
+				<option value="file11">github.com/bizio/abc-user-service/internal/domain/model/file.go (100.0%)</option>
+				
+				<option value="file12">github.com/bizio/abc-user-service/internal/domain/model/user.go (77.1%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package service
+
+import (
+        "log"
+
+        "github.com/bizio/abc-user-service/internal/domain"
+        "github.com/bizio/abc-user-service/internal/domain/model"
+        v1 "github.com/bizio/abc-user-service/pkg/api/v1"
+        "github.com/google/uuid"
+)
+
+func NewAddFileApplicationService(
+        repository domain.UserRepository,
+        storage domain.FileRepository,
+        maxFileSize int64) *AddFileApplicationService <span class="cov8" title="1">{
+        return &amp;AddFileApplicationService{repository, storage, maxFileSize}
+}</span>
+
+type AddFileApplicationService struct {
+        repository  domain.UserRepository
+        storage     domain.FileRepository
+        maxFileSize int64
+}
+
+func (s *AddFileApplicationService) Do(req *v1.UploadFileRequest) (*v1.UploadFileResponse, error) <span class="cov8" title="1">{
+        user, err := s.repository.Get(req.UserID)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">if req.File.Size &gt; s.maxFileSize </span><span class="cov8" title="1">{
+                return nil, model.ErrFileTooLarge
+        }</span>
+
+        <span class="cov8" title="1">filepath, err := s.storage.Upload(req.UserID, req.File)
+        if err != nil </span><span class="cov8" title="1">{
+                log.Printf("error uploading file: %s", err)
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">newFile := &amp;model.File{
+                ID:     uuid.NewString(),
+                UserID: req.UserID,
+                Name:   req.File.Filename,
+                Path:   filepath,
+                Size:   req.File.Size,
+        }
+        user.AddFile(newFile)
+
+        err = s.repository.Update(user.ID, user)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">return &amp;v1.UploadFileResponse{File: user.GetFiles()[len(user.GetFiles())-1].ToDTO()}, nil</span>
+
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package service
+
+import (
+        "log"
+
+        "github.com/bizio/abc-user-service/internal/domain"
+        "github.com/bizio/abc-user-service/internal/domain/event"
+        "github.com/bizio/abc-user-service/internal/domain/model"
+        v1 "github.com/bizio/abc-user-service/pkg/api/v1"
+)
+
+func NewCreateUserApplicationService(repository domain.UserRepository, publisher domain.EventPublisher) *CreateUserApplicationService <span class="cov8" title="1">{
+        return &amp;CreateUserApplicationService{repository, publisher}
+}</span>
+
+type CreateUserApplicationService struct {
+        repository domain.UserRepository
+        publisher  domain.EventPublisher
+}
+
+func (s *CreateUserApplicationService) Do(req *v1.CreateUserRequest) (*v1.CreateUserResponse, error) <span class="cov8" title="1">{
+
+        user, err := model.NewUser(req.Name, req.Email, req.DOB)
+        if err != nil </span><span class="cov8" title="1">{
+                return &amp;v1.CreateUserResponse{}, err
+        }</span>
+
+        // check if user with same email already exists
+        <span class="cov8" title="1">existingUser, err := s.repository.GetByEmail(req.Email)
+        if existingUser != nil &amp;&amp; err == nil </span><span class="cov8" title="1">{
+                return &amp;v1.CreateUserResponse{}, domain.ErrUserAlreadyExists
+        }</span>
+
+        <span class="cov8" title="1">id, err := s.repository.Create(user)
+        if err != nil </span><span class="cov8" title="1">{
+                return &amp;v1.CreateUserResponse{}, err
+        }</span>
+
+        <span class="cov8" title="1">event, err := event.NewUserCreatedEvent(user)
+        if err != nil </span><span class="cov0" title="0">{
+                log.Printf("failed to publish user created event: %v", err)
+        }</span> else<span class="cov8" title="1"> {
+                s.publisher.Publish(event)
+        }</span>
+
+        <span class="cov8" title="1">return &amp;v1.CreateUserResponse{ID: id}, nil</span>
+
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package service
+
+import (
+        "github.com/bizio/abc-user-service/internal/domain"
+)
+
+func NewDeleteFilesApplicationService(repository domain.UserRepository, storage domain.FileRepository) *DeleteFilesApplicationService <span class="cov8" title="1">{
+        return &amp;DeleteFilesApplicationService{repository, storage}
+}</span>
+
+type DeleteFilesApplicationService struct {
+        repository domain.UserRepository
+        storage    domain.FileRepository
+}
+
+func (s *DeleteFilesApplicationService) Do(userID string) error <span class="cov8" title="1">{
+        user, err := s.repository.Get(userID)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">err = s.storage.DeleteFiles(user.ID)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">err = s.repository.DeleteFiles(user.ID)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">return nil</span>
+
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package service
+
+import (
+        "github.com/bizio/abc-user-service/internal/domain"
+        "github.com/bizio/abc-user-service/internal/domain/event"
+)
+
+func NewDeleteUserApplicationService(repository domain.UserRepository, storage domain.FileRepository, publisher domain.EventPublisher) *DeleteUserApplicationService <span class="cov8" title="1">{
+        return &amp;DeleteUserApplicationService{repository, storage, publisher}
+}</span>
+
+type DeleteUserApplicationService struct {
+        repository domain.UserRepository
+        storage    domain.FileRepository
+        publisher  domain.EventPublisher
+}
+
+func (s *DeleteUserApplicationService) Do(id string) error <span class="cov8" title="1">{
+        err := s.repository.Delete(id)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">err = s.storage.DeleteFiles(id)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+
+        <span class="cov8" title="1">s.publisher.Publish(event.NewUserDeletedEvent(id))
+
+        return nil</span>
+
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package service
+
+import (
+        "github.com/bizio/abc-user-service/internal/domain"
+        v1 "github.com/bizio/abc-user-service/pkg/api/v1"
+)
+
+func NewGetFilesApplicationService(repository domain.UserRepository) *GetFilesApplicationService <span class="cov8" title="1">{
+        return &amp;GetFilesApplicationService{repository}
+}</span>
+
+type GetFilesApplicationService struct {
+        repository domain.UserRepository
+}
+
+func (s *GetFilesApplicationService) Do(userID string) (*v1.GetFilesResponse, error) <span class="cov8" title="1">{
+        user, err := s.repository.Get(userID)
+        if err != nil </span><span class="cov8" title="1">{
+                return &amp;v1.GetFilesResponse{}, err
+        }</span>
+
+        <span class="cov8" title="1">files := make([]*v1.File, 0, len(user.GetFiles()))
+        for _, file := range user.GetFiles() </span><span class="cov8" title="1">{
+                files = append(files, file.ToDTO())
+        }</span>
+
+        <span class="cov8" title="1">return &amp;v1.GetFilesResponse{Files: files}, nil</span>
+
+}
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package service
+
+import (
+        "github.com/bizio/abc-user-service/internal/domain"
+        v1 "github.com/bizio/abc-user-service/pkg/api/v1"
+)
+
+func NewGetUserApplicationService(repository domain.UserRepository) *GetUserApplicationService <span class="cov8" title="1">{
+        return &amp;GetUserApplicationService{repository}
+}</span>
+
+type GetUserApplicationService struct {
+        repository domain.UserRepository
+}
+
+func (s *GetUserApplicationService) Do(id string) (*v1.GetUserResponse, error) <span class="cov8" title="1">{
+        user, err := s.repository.Get(id)
+        if err != nil </span><span class="cov8" title="1">{
+                return &amp;v1.GetUserResponse{}, err
+        }</span>
+
+        <span class="cov8" title="1">return &amp;v1.GetUserResponse{User: user.ToDTO()}, nil</span>
+
+}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package service
+
+import (
+        "github.com/bizio/abc-user-service/internal/domain"
+        v1 "github.com/bizio/abc-user-service/pkg/api/v1"
+)
+
+func NewListUsersApplicationService(repository domain.UserRepository) *ListUsersApplicationService <span class="cov8" title="1">{
+        return &amp;ListUsersApplicationService{repository}
+}</span>
+
+type ListUsersApplicationService struct {
+        repository domain.UserRepository
+}
+
+func (s *ListUsersApplicationService) Do() (*v1.ListUsersResponse, error) <span class="cov8" title="1">{
+        users, err := s.repository.List()
+        if err != nil </span><span class="cov8" title="1">{
+                return &amp;v1.ListUsersResponse{}, err
+        }</span>
+
+        <span class="cov8" title="1">userDTOs := make([]*v1.User, len(users))
+        for i, user := range users </span><span class="cov8" title="1">{
+                userDTOs[i] = user.ToDTO()
+        }</span>
+
+        <span class="cov8" title="1">return &amp;v1.ListUsersResponse{
+                Users: userDTOs,
+                Count: int32(len(userDTOs)),
+        }, nil</span>
+
+}
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package service
+
+import (
+        "github.com/bizio/abc-user-service/internal/domain"
+        "github.com/bizio/abc-user-service/internal/domain/event"
+        v1 "github.com/bizio/abc-user-service/pkg/api/v1"
+)
+
+func NewUpdateUserApplicationService(repository domain.UserRepository, publisher domain.EventPublisher) *UpdateUserApplicationService <span class="cov8" title="1">{
+        return &amp;UpdateUserApplicationService{repository, publisher}
+}</span>
+
+type UpdateUserApplicationService struct {
+        repository domain.UserRepository
+        publisher  domain.EventPublisher
+}
+
+func (s *UpdateUserApplicationService) Do(req *v1.UpdateUserRequest) (*v1.UpdateUserResponse, error) <span class="cov8" title="1">{
+
+        user, err := s.repository.Get(req.ID)
+        if err != nil </span><span class="cov8" title="1">{
+                return &amp;v1.UpdateUserResponse{}, err
+        }</span>
+
+        <span class="cov8" title="1">if req.Name != "" </span><span class="cov8" title="1">{
+                user.SetName(req.Name)
+        }</span>
+
+        <span class="cov8" title="1">if req.Email != "" </span><span class="cov8" title="1">{
+                err = user.SetEmail(req.Email)
+                if err != nil </span><span class="cov8" title="1">{
+                        return &amp;v1.UpdateUserResponse{}, err
+                }</span>
+        }
+
+        <span class="cov8" title="1">if req.DOB != "" </span><span class="cov8" title="1">{
+                err = user.SetDob(req.DOB)
+                if err != nil </span><span class="cov8" title="1">{
+                        return &amp;v1.UpdateUserResponse{}, err
+                }</span>
+        }
+
+        <span class="cov8" title="1">err = s.repository.Update(req.ID, user)
+        if err != nil </span><span class="cov8" title="1">{
+                return &amp;v1.UpdateUserResponse{}, err
+        }</span>
+
+        <span class="cov8" title="1">s.publisher.Publish(event.NewUserUpdatedEvent(user))
+        return &amp;v1.UpdateUserResponse{User: user.ToDTO()}, nil</span>
+
+}
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">package event
+
+import (
+        "github.com/bizio/abc-user-service/internal/domain"
+        "github.com/bizio/abc-user-service/internal/domain/model"
+)
+
+func NewUserCreatedEvent(user *model.User) (*domain.Event, error) <span class="cov0" title="0">{
+        return &amp;domain.Event{Type: domain.UserCreatedEvent, UserID: user.ToDTO().ID, User: user}, nil
+}</span>
+</pre>
+		
+		<pre class="file" id="file9" style="display: none">package event
+
+import "github.com/bizio/abc-user-service/internal/domain"
+
+func NewUserDeletedEvent(userID string) *domain.Event <span class="cov0" title="0">{
+        return &amp;domain.Event{UserID: userID, Type: domain.UserDeletedEvent}
+}</span>
+</pre>
+		
+		<pre class="file" id="file10" style="display: none">package event
+
+import (
+        "github.com/bizio/abc-user-service/internal/domain"
+        "github.com/bizio/abc-user-service/internal/domain/model"
+)
+
+func NewUserUpdatedEvent(user *model.User) *domain.Event <span class="cov0" title="0">{
+        return &amp;domain.Event{Type: domain.UserUpdatedEvent, UserID: user.ToDTO().ID, User: user}
+}</span>
+</pre>
+		
+		<pre class="file" id="file11" style="display: none">package model
+
+import (
+        "errors"
+
+        v1 "github.com/bizio/abc-user-service/pkg/api/v1"
+)
+
+var ErrFileTooLarge = errors.New("file is too large")
+
+type File struct {
+        ID     string
+        UserID string
+        Name   string
+        Path   string
+        Size   int64
+}
+
+func (f *File) ToDTO() *v1.File <span class="cov8" title="1">{
+        return &amp;v1.File{
+                ID:     f.ID,
+                UserID: f.UserID,
+                Name:   f.Name,
+                Path:   f.Path,
+                Size:   f.Size,
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file12" style="display: none">package model
+
+import (
+        "errors"
+        "fmt"
+        "log"
+        "net/mail"
+        "time"
+
+        v1 "github.com/bizio/abc-user-service/pkg/api/v1"
+)
+
+const MinimumAge = 18
+
+var (
+        ErrInvalidEmailAddress     = errors.New("invalid email address")
+        ErrInvalidDob              = errors.New("invalid date of birth")
+        ErrMinAgeRequirementNotMet = fmt.Errorf("user must be at least %d years old", MinimumAge)
+)
+
+type User struct {
+        ID    string
+        name  string
+        email string
+        dob   string
+        files []*File
+}
+
+func NewUser(name string, email string, dob string) (*User, error) <span class="cov8" title="1">{
+
+        user := &amp;User{name: name}
+        err := user.SetDob(dob)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">err = user.SetEmail(email)
+        if err != nil </span><span class="cov8" title="1">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">user.files = make([]*File, 0)
+        return user, nil</span>
+}
+
+func (u *User) SetName(name string) <span class="cov0" title="0">{
+        u.name = name
+}</span>
+
+func (u *User) SetDob(dob string) error <span class="cov8" title="1">{
+        parsedDob, err := time.Parse(time.DateOnly, dob)
+        if err != nil </span><span class="cov8" title="1">{
+                log.Printf("error parsing date: %s", err)
+                return ErrInvalidDob
+        }</span>
+
+        <span class="cov8" title="1">if time.Now().Year()-parsedDob.Year() &lt; MinimumAge </span><span class="cov8" title="1">{
+                return ErrMinAgeRequirementNotMet
+        }</span>
+
+        <span class="cov8" title="1">u.dob = parsedDob.Format(time.DateOnly)
+        return nil</span>
+}
+
+func (u *User) SetEmail(email string) error <span class="cov8" title="1">{
+        parsedEmail, err := mail.ParseAddress(email)
+        if err != nil </span><span class="cov8" title="1">{
+                log.Printf("error parsing email address: %s", err)
+                return ErrInvalidEmailAddress
+        }</span>
+
+        <span class="cov8" title="1">u.email = parsedEmail.Address
+
+        return nil</span>
+}
+
+func (u *User) AddFile(file *File) <span class="cov0" title="0">{
+        u.files = append(u.files, file)
+}</span>
+
+func (u *User) DeleteFile(fileID string) <span class="cov0" title="0">{
+        for i, file := range u.files </span><span class="cov0" title="0">{
+                if file.ID == fileID </span><span class="cov0" title="0">{
+                        u.files = append(u.files[:i], u.files[i+1:]...)
+                        return
+                }</span>
+        }
+}
+
+func (u *User) DeleteFiles() <span class="cov0" title="0">{
+        u.files = make([]*File, 0)
+}</span>
+
+func (u *User) GetFiles() []*File <span class="cov0" title="0">{
+        return u.files
+}</span>
+
+func (u *User) ToDTO() *v1.User <span class="cov8" title="1">{
+        files := make([]*v1.File, 0, len(u.files))
+        for _, f := range u.files </span><span class="cov8" title="1">{
+                files = append(files, f.ToDTO())
+        }</span>
+        <span class="cov8" title="1">return &amp;v1.User{
+                ID:    u.ID,
+                Name:  u.name,
+                Email: u.email,
+                DOB:   u.dob,
+                Files: files,
+        }</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

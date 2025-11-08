@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  app:
+    environment:
+      HTTP_PORT: ${HTTP_PORT}
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_DATABASE}
+      QUEUE_USER: guest
+      QUEUE_PASSWORD: guest
+      QUEUE_HOST: rabbitmq
+      QUEUE_PORT: 5672
+    build:
+      context: ../../
+      dockerfile: build/development/Dockerfile
+    container_name: abc-user-service-app
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT}:${HTTP_PORT}"
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.0
+    container_name: abc-mysql-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$${DB_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  rabbitmq:
+      image: rabbitmq:latest
+      container_name: rabbitmq
+      restart: always
+      ports:
+        - 5672:5672
+        - 15672:15672
+      environment:
+        RABBITMQ_DEFAULT_USER: guest
+        RABBITMQ_DEFAULT_PASS: guest
+      configs:
+        - source: rabbitmq-plugins
+          target: /etc/rabbitmq/enabled_plugins
+      volumes:
+        - rabbitmq-lib:/var/lib/rabbitmq/
+        - rabbitmq-log:/var/log/rabbitmq
+      healthcheck:
+        test: ["CMD", "rabbitmq-diagnostics", "status"]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+
+configs:
+  rabbitmq-plugins:
+    content: "[rabbitmq_management]."  
+    
+volumes:
+  db-data:
+  rabbitmq-lib:
+      driver: local
+  rabbitmq-log:
+    driver: local
