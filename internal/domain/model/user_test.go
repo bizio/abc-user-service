@@ -76,6 +76,65 @@ func TestNewUser(t *testing.T) {
 	}
 }
 
+func TestUser_SetName(t *testing.T) {
+	user := &User{name: "Old Name"}
+	user.SetName("New Name")
+	assert.Equal(t, "New Name", user.name)
+}
+
+func TestUser_SetEmail(t *testing.T) {
+	user := &User{email: "jane.doe@example.com"}
+	err := user.SetEmail("john.doe@example.com")
+	assert.NoError(t, err)
+	assert.Equal(t, "john.doe@example.com", user.email)
+}
+func TestUser_SetDob(t *testing.T) {
+	user := &User{dob: "2000-01-01"}
+	err := user.SetDob("1990-12-31")
+	assert.NoError(t, err)
+	assert.Equal(t, "1990-12-31", user.dob)
+}
+func TestUser_AddFile(t *testing.T) {
+	user := &User{ID: "user-123", files: []*File{}}
+	file := &File{ID: "file-456", UserID: "user-123", Name: "example.txt", Path: "/tmp/user/user-123/files/example.txt", Size: 256}
+	user.AddFile(file)
+
+	assert.Len(t, user.files, 1)
+	assert.Equal(t, file, user.files[0])
+}
+
+func TestUser_DeleteFile(t *testing.T) {
+	user := &User{ID: "user-123", files: []*File{
+		{ID: "file-123", UserID: "user-123", Name: "file1.txt", Path: "/tmp/user/user-123/files/file1.txt", Size: 128},
+		{ID: "file-456", UserID: "user-123", Name: "file2.txt", Path: "/tmp/user/user-123/files/file2.txt", Size: 256},
+	}}
+	user.DeleteFile("file-123")
+	assert.Len(t, user.files, 1)
+	assert.Equal(t, "file-456", user.files[0].ID)
+
+	user.DeleteFile("non-existent-file")
+	assert.Len(t, user.files, 1)
+}
+
+func TestUser_DeleteFiles(t *testing.T) {
+	user := &User{ID: "user-123", files: []*File{
+		{ID: "file-123", UserID: "user-123", Name: "file1.txt", Path: "/tmp/user/user-123/files/file1.txt", Size: 128},
+		{ID: "file-456", UserID: "user-123", Name: "file2.txt", Path: "/tmp/user/user-123/files/file2.txt", Size: 256},
+	}}
+	user.DeleteFiles()
+	assert.Len(t, user.files, 0)
+}
+
+func TestUser_GetFiles(t *testing.T) {
+	user := &User{ID: "user-123", files: []*File{
+		{ID: "file-123", UserID: "user-123", Name: "file1.txt", Path: "/tmp/user/user-123/files/file1.txt", Size: 128},
+		{ID: "file-456", UserID: "user-123", Name: "file2.txt", Path: "/tmp/user/user-123/files/file2.txt", Size: 256},
+	}}
+	files := user.GetFiles()
+	assert.Len(t, files, 2)
+	assert.Equal(t, "file-123", files[0].ID)
+	assert.Equal(t, "file-456", files[1].ID)
+}
 func TestUser_ToDTO(t *testing.T) {
 	user := &User{
 		ID:    "user-123",

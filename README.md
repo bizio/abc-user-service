@@ -3,10 +3,12 @@ Simple User Service for ABC
 
 ## Code Structure
 
+The project structure is based on the [golang-standards/project-layout](https://github.com/golang-standards/project-layout).
+
 The project follows a clean architecture approach, separating concerns into distinct layers. Here's a breakdown of the main directories:
 
 -   `cmd/server`: Main application entry point.
--   `internal`: Contains all the core application and business logic.
+-   `internal`: Contains all the core application and business logic. The structure of this directory is inspired by Uncle Bob's [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html) and Domain-Driven Design principles.
     -   `application/service`: Implements the use cases of the application.
     -   `domain`: Core domain models, repository interfaces, and events. This layer is independent of any other layer.
     -   `infrastructure`: Implements the interfaces defined in the domain layer (e.g., database repositories, message brokers, HTTP handlers).

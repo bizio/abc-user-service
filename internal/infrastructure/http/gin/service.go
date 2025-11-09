@@ -7,6 +7,8 @@ import (
 	"github.com/bizio/abc-user-service/internal/domain"
 	v1 "github.com/bizio/abc-user-service/pkg/api/v1"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type HttpError struct {
@@ -54,6 +56,9 @@ func (s *GinHttpService) GetRouter() http.Handler {
 	router := gin.Default()
 
 	router.MaxMultipartMemory = s.maxFileSize
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	// v1 API routes
 	v1Users := router.Group("/v1/users")
 	v1Users.GET("", s.List)
 	v1Users.GET("/:id", s.Get)
@@ -68,6 +73,7 @@ func (s *GinHttpService) GetRouter() http.Handler {
 }
 
 // List list all users
+//
 //	@Summary		List all users
 //	@Description	List all users
 //	@Tags			users
@@ -87,6 +93,7 @@ func (s *GinHttpService) List(c *gin.Context) {
 }
 
 // Get get a user by ID
+//
 //	@Summary		Get a user by ID
 //	@Description	Get a single user by its ID
 //	@Tags			users
@@ -113,6 +120,7 @@ func (s *GinHttpService) Get(c *gin.Context) {
 }
 
 // Create create a new user
+//
 //	@Summary		Create a new user
 //	@Description	Create a new user with the provided information
 //	@Tags			users
@@ -141,6 +149,7 @@ func (s *GinHttpService) Create(c *gin.Context) {
 }
 
 // Update update a user
+//
 //	@Summary		Update a user
 //	@Description	Update an existing user's information
 //	@Tags			users
@@ -172,6 +181,7 @@ func (s *GinHttpService) Update(c *gin.Context) {
 }
 
 // Delete delete a user
+//
 //	@Summary		Delete a user
 //	@Description	Delete a user by its ID
 //	@Tags			users
@@ -200,6 +210,7 @@ func (s *GinHttpService) Delete(c *gin.Context) {
 }
 
 // GetFiles get user's files
+//
 //	@Summary		Get user's files
 //	@Description	Get a list of files for a specific user
 //	@Tags			files
@@ -229,6 +240,7 @@ func (s *GinHttpService) GetFiles(c *gin.Context) {
 }
 
 // UploadFile upload a file for a user
+//
 //	@Summary		Upload a file
 //	@Description	Upload a file for a specific user
 //	@Tags			files
@@ -257,6 +269,7 @@ func (s *GinHttpService) UploadFile(c *gin.Context) {
 }
 
 // DeleteFiles delete all files for a user
+//
 //	@Summary		Delete all files for a user
 //	@Description	Delete all files associated with a specific user
 //	@Tags			files

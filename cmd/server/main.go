@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"os"
 
-	_ "github.com/bizio/abc-user-service/docs"
+	_ "github.com/bizio/abc-user-service/api/v1"
 	cmd "github.com/bizio/abc-user-service/pkg/cmd"
 )
 
