@@ -1,6 +1,8 @@
 package service
 
 import (
+	"log"
+
 	"github.com/bizio/abc-user-service/internal/domain"
 	"github.com/bizio/abc-user-service/internal/domain/event"
 )
@@ -26,8 +28,12 @@ func (s *DeleteUserApplicationService) Do(id string) error {
 		return err
 	}
 
-	s.publisher.Publish(event.NewUserDeletedEvent(id))
-
+	go func() {
+		err = s.publisher.Publish(event.NewUserDeletedEvent(id))
+		if err != nil {
+			log.Printf("Failed to publish user created event: %v", err)
+		}
+	}()
 	return nil
 
 }

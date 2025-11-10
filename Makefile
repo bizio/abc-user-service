@@ -1,7 +1,7 @@
 PKGS := $(shell go list ./... | grep -e domain -e application)
 
 # Build the project
-build:
+binary:
 	CGO_ENABLED=0 GOOS=linux go build -o bin/abc-user-service ./cmd/server/main.go
 
 docker-compose-up:
@@ -23,7 +23,10 @@ test: gomod
 	go tool cover -func=out/cover.out
 
 lint:
-	golangci-lint run ./...
+	golangci-lint run cmd/... pkg/... internal/...
+
+lint-install:
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 
 # add missing and remove unused modules
 gomod:

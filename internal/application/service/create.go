@@ -1,6 +1,8 @@
 package service
 
 import (
+	"log"
+
 	"github.com/bizio/abc-user-service/internal/domain"
 	"github.com/bizio/abc-user-service/internal/domain/event"
 	"github.com/bizio/abc-user-service/internal/domain/model"
@@ -34,7 +36,12 @@ func (s *CreateUserApplicationService) Do(req *v1.CreateUserRequest) (*v1.Create
 		return &v1.CreateUserResponse{}, err
 	}
 
-	s.publisher.Publish(event.NewUserCreatedEvent(user))
+	go func() {
+		err = s.publisher.Publish(event.NewUserCreatedEvent(user))
+		if err != nil {
+			log.Printf("Failed to publish user created event: %v", err)
+		}
+	}()
 	return &v1.CreateUserResponse{ID: id}, nil
 
 }

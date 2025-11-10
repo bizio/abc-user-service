@@ -46,15 +46,30 @@ The easiest way to get the development environment up and running is by using th
 
 Alternatively, you can run the service directly on your host machine using `make run-local`. This requires you to manually set up the database and other dependencies.
 
+## API Documentation
+
+The service provides OpenAPI documentation via Swagger UI. Once the application is running, you can access the documentation by navigating to:
+
+[/swagger/index.html](/swagger/index.html)
+
+This will display the interactive API documentation, allowing you to explore the available endpoints and their details.
+
 ## Makefile Commands
 
 The `Makefile` provides several commands to streamline development:
 
--   `make build`: Compiles the Go application into a binary located in the `bin/` directory.
--   `make docker-compose-up`: Starts the local development environment using Docker Compose.
+-   `make binary`: Compiles the Go application into a binary located in the `bin/` directory.
+-   `make docker-compose-up`: Starts the local development environment using Docker Compose. It also builds the application.
 -   `make docker-compose-down`: Stops the local development environment.
 -   `make run-local`: Runs the application directly on the host machine (requires dependencies to be running).
--   `make test`: Runs the unit and integration tests.
+-   `make test`: Runs the unit and integration tests and generates a coverage report.
 -   `make lint`: Lints the codebase using `golangci-lint`.
+-   `make lint-install`: Installs the `golangci-lint` tool.
+-   `make gomod`: Tidies the `go.mod` file, adding missing and removing unused modules.
 -   `make mocks`: Generates mocks for the repository and other interfaces.
--   `make clean`: Removes build artifacts.
+-   `make update-mocks`: Updates mockery and then generates mocks.
+-   `make test-mocks`: A convenient command that updates mocks and then runs tests.
+-   `make clean`: Removes build artifacts from the `bin/` directory.
+-   `make install-go-test-coverage`: Installs the `go-test-coverage` tool.
+-   `make install-swag`: Installs the `swag` tool for Swagger documentation.
+-   `make swagger`: Generates Swagger documentation.
