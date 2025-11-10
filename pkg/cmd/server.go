@@ -78,11 +78,18 @@ func RunServer() error {
 	}
 
 	rabbitmqConsumer := rabbitmq.NewRabbitMQConsumer("user_events_queue", "user_events", channel)
-	err = rabbitmqConsumer.Consume()
+	eventCh, err := rabbitmqConsumer.Consume()
 	if err != nil {
 		log.Printf("Failed to start RabbitMQ consumer: %v", err)
 		panic(err)
 	}
+
+	go func() {
+		for event := range eventCh {
+			log.Printf("Processing event: %v", event)
+			// Add event processing logic here
+		}
+	}()
 
 	fmt.Printf("Starting HTTP/REST gateway on port %s...\n", cfg.HTTPPort)
 	return rest.RunServer(ctx, cfg.HTTPPort, db, channel)

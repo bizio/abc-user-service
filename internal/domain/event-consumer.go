@@ -2,5 +2,5 @@ package domain
 
 //go:generate mockery --name EventConsumer --output ../../mocks --outpkg mocks
 type EventConsumer interface {
-	Consume() error
+	Consume() (<-chan *Event, error)
 }
