@@ -1,5 +1,5 @@
 # abc-user-service
-Simple User Service for ABC
+Demo User Service for ABC
 
 ## Code Structure
 
