@@ -1,5 +1,6 @@
 # abc-user-service
-Demo User Service for ABC
+Simple User Service just to demonstrate clean architecture design, low level implementations like rabbitmq and mysql are not optimized.
+The code is fully functional.
 
 ## Code Structure
 
